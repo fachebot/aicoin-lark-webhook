@@ -192,7 +192,15 @@ npm run typecheck
 npm test
 ```
 
-`npm run build` 使用的是 `vercel build`。如果当前目录还没有关联到 Vercel 项目，CLI 可能会先提示执行 `vercel pull`。
+`npm run build` 现在只做 TypeScript 类型检查，适合作为 Vercel 的构建命令。
+
+如果你想在本地模拟一次 Vercel 构建，使用下面这个命令：
+
+```bash
+npm run vercel:build
+```
+
+如果当前目录还没有关联到 Vercel 项目，CLI 可能会先提示执行 `vercel pull`。
 
 ## 维护提示
 
