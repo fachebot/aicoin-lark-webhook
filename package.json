@@ -1,0 +1,22 @@
+{
+  "name": "aicoin-lark-webhook",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "vercel build",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.1",
+    "@vercel/node": "^5.8.11",
+    "typescript": "^6.0.3",
+    "vercel": "^54.9.0",
+    "vitest": "^4.1.8"
+  }
+}
