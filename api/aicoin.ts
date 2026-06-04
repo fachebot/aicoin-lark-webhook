@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 
-import { handleAicoinRequest } from "../src/handlers/aicoin";
+import { handleAicoinRequest } from "../src/handlers/aicoin.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const result = await handleAicoinRequest({

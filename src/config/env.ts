@@ -1,4 +1,4 @@
-import { HttpError } from "../shared/errors";
+import { HttpError } from "../shared/errors.js";
 
 export type LarkUserIdType = "open_id" | "union_id" | "user_id";
 

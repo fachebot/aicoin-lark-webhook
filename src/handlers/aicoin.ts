@@ -1,23 +1,23 @@
-import { getConfig, type AppConfig } from "../config/env";
+import { getConfig, type AppConfig } from "../config/env.js";
 import {
   getDedupeStore,
   type DeliveryDedupeStore,
-} from "../modules/aicoin/dedupe";
-import { normalizeAicoinPayload } from "../modules/aicoin/normalize";
-import { LarkClient } from "../modules/lark/client";
+} from "../modules/aicoin/dedupe.js";
+import { normalizeAicoinPayload } from "../modules/aicoin/normalize.js";
+import { LarkClient } from "../modules/lark/client.js";
 import {
   hasDeliveryFailures,
   notifyPriceAlert,
   type NotifyPriceAlertArgs,
-} from "../modules/notify/service";
-import { HttpError, isHttpError } from "../shared/errors";
+} from "../modules/notify/service.js";
+import { HttpError, isHttpError } from "../shared/errors.js";
 import {
   emptyResult,
   firstValue,
   jsonResult,
   type HandlerRequest,
   type HandlerResult,
-} from "../shared/http";
+} from "../shared/http.js";
 
 interface AicoinHandlerDependencies {
   config?: AppConfig;

@@ -1,4 +1,4 @@
-import { jsonResult } from "../shared/http";
+import { jsonResult } from "../shared/http.js";
 
 export function handleHealthRequest(now: Date = new Date()) {
   return jsonResult(200, {

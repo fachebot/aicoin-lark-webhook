@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 
-import { handleHealthRequest } from "../src/handlers/health";
+import { handleHealthRequest } from "../src/handlers/health.js";
 
 export default function handler(_req: VercelRequest, res: VercelResponse) {
   const result = handleHealthRequest();

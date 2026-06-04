@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import {
   LarkClient,
   type PostMessageContent,
-} from "../src/modules/lark/client";
+} from "../src/modules/lark/client.js";
 
 const samplePost: PostMessageContent = {
   zh_cn: {

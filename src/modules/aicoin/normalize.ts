@@ -1,6 +1,6 @@
-import { HttpError } from "../../shared/errors";
+import { HttpError } from "../../shared/errors.js";
 
-import type { AicoinPriceAlertPayload, PriceAlertEvent } from "./types";
+import type { AicoinPriceAlertPayload, PriceAlertEvent } from "./types.js";
 
 export function normalizeAicoinPayload(
   payload: unknown,

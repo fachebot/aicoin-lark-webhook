@@ -1,6 +1,6 @@
-import type { PriceAlertEvent } from "../aicoin/types";
-import { buildPriceAlertPost } from "./format";
-import type { LarkClient } from "../lark/client";
+import type { PriceAlertEvent } from "../aicoin/types.js";
+import { buildPriceAlertPost } from "./format.js";
+import type { LarkClient } from "../lark/client.js";
 
 export interface DeliveryResult {
   userId: string;

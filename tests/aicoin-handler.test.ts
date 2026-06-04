@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 
-import type { AppConfig } from "../src/config/env";
-import { handleAicoinRequest } from "../src/handlers/aicoin";
-import { createInMemoryDedupeStore } from "../src/modules/aicoin/dedupe";
+import type { AppConfig } from "../src/config/env.js";
+import { handleAicoinRequest } from "../src/handlers/aicoin.js";
+import { createInMemoryDedupeStore } from "../src/modules/aicoin/dedupe.js";
 
 const baseConfig: AppConfig = {
   aicoinWebhookToken: "secret-token",

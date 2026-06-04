@@ -1,5 +1,5 @@
-import type { LarkUserIdType } from "../../config/env";
-import { LarkAPIError } from "../../shared/errors";
+import type { LarkUserIdType } from "../../config/env.js";
+import { LarkAPIError } from "../../shared/errors.js";
 
 export interface PostNode {
   tag: string;

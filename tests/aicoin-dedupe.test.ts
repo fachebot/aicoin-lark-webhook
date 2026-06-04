@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { createInMemoryDedupeStore } from "../src/modules/aicoin/dedupe";
+import { createInMemoryDedupeStore } from "../src/modules/aicoin/dedupe.js";
 
 describe("In-memory delivery dedupe store", () => {
   it("marks only delivered users as duplicates", () => {

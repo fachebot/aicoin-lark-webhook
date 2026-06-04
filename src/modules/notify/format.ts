@@ -1,5 +1,5 @@
-import type { PostMessageContent, PostNode } from "../lark/client";
-import type { PriceAlertEvent } from "../aicoin/types";
+import type { PostMessageContent, PostNode } from "../lark/client.js";
+import type { PriceAlertEvent } from "../aicoin/types.js";
 
 export function buildPriceAlertPost(
   event: PriceAlertEvent,

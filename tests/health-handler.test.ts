@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { handleHealthRequest } from "../src/handlers/health";
+import { handleHealthRequest } from "../src/handlers/health.js";
 
 describe("handleHealthRequest", () => {
   it("returns a health payload with the supplied timestamp", () => {
