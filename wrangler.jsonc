@@ -1,0 +1,6 @@
+{
+    "$schema": "node_modules/wrangler/config-schema.json",
+    "name": "aicoin-lark-webhook",
+    "main": "workers/index.ts",
+    "compatibility_date": "2026-06-05"
+}

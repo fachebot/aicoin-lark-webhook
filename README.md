@@ -1,6 +1,6 @@
 # AiCoin Lark Webhook
 
-这是一个部署在 Vercel 上的轻量 TypeScript Webhook 服务，用来接收 AiCoin 价格预警，并把告警转发到飞书用户私聊，同时触发 `urgent_app` 加急提醒。
+这是一个可以部署在 Vercel 或 Cloudflare Workers 上的轻量 TypeScript Webhook 服务，用来接收 AiCoin 价格预警，并把告警转发到飞书用户私聊，同时触发 `urgent_app` 加急提醒。
 
 ## 项目作用
 
@@ -15,10 +15,14 @@
 ```mermaid
 flowchart LR
     AiCoin[AiCoin Webhook] --> ApiAicoin[api/aicoin.ts]
+  AiCoin --> WorkerEntry[workers/index.ts]
     HealthCheck[Health Check] --> ApiHealth[api/health.ts]
+  HealthCheck --> WorkerEntry
 
     ApiAicoin --> HandlerAicoin[src/handlers/aicoin.ts]
     ApiHealth --> HandlerHealth[src/handlers/health.ts]
+  WorkerEntry --> HandlerAicoin
+  WorkerEntry --> HandlerHealth
 
     HandlerAicoin --> Config[src/config/env.ts]
     HandlerAicoin --> Normalize[src/modules/aicoin/normalize.ts]
@@ -98,6 +102,8 @@ sequenceDiagram
 api/
   aicoin.ts        Vercel API 入口，负责适配请求和响应
   health.ts        健康检查入口
+.dev.vars.example  Cloudflare Workers 本地环境变量示例
+.env.example       Vercel 本地环境变量示例
 src/
   config/
     env.ts         环境变量解析与缓存
@@ -119,6 +125,9 @@ src/
     http.ts        统一响应结构
 tests/
   *.test.ts        Vitest 单元测试
+workers/
+  index.ts         Cloudflare Workers 入口，负责适配 Request 和 Response
+wrangler.jsonc     Cloudflare Workers 部署配置
 ```
 
 ## 路由说明
@@ -130,7 +139,7 @@ tests/
 
 ## 核心处理流程
 
-1. Vercel 入口把请求对象交给 `handleAicoinRequest`。
+1. Vercel 入口或 Workers 入口把请求对象交给 `handleAicoinRequest`。
 2. handler 根据方法区分 `GET`、`HEAD` 和 `POST`。
 3. `POST` 请求会依次进行 token 校验、Content-Type 校验和 JSON 解析。
 4. `normalizeAicoinPayload` 校验 AiCoin 负载，并生成标准化事件与 `dedupeKey`。
@@ -146,10 +155,15 @@ tests/
 - `src/modules/notify/service.ts`：串行发送消息，收集逐用户结果。
 - `src/modules/notify/format.ts`：生成飞书 `post` 消息内容。
 - `src/modules/lark/client.ts`：封装飞书鉴权、发送消息和 `urgent_app` 调用。
+- `workers/index.ts`：Cloudflare Workers 入口，复用同一套 handler。
 
 ## 环境变量
 
-本地开发前，先把 `.env.example` 复制为 `.env`。
+本地开发前：
+
+- 使用 Vercel 时，把 `.env.example` 复制为 `.env`。
+- 使用 Cloudflare Workers 时，把 `.dev.vars.example` 复制为 `.dev.vars`。
+- 两个平台使用同一组环境变量名。
 
 必填项：
 
@@ -174,25 +188,36 @@ tests/
 
 ## 本地开发
 
+`npm run dev` 仍然等价于 `npm run dev:vercel`。
+
+Vercel：
+
 ```bash
 npm install
-npm run dev
+npm run dev:vercel
+```
+
+Cloudflare Workers：
+
+```bash
+npm install
+npm run dev:worker
 ```
 
 AiCoin 回调地址示例：
 
 ```text
-https://your-domain.vercel.app/api/aicoin?token=replace-with-a-long-random-token
+https://your-domain.example.com/api/aicoin?token=replace-with-a-long-random-token
 ```
 
 ## 验证命令
 
 ```bash
-npm run typecheck
+npm run build
 npm test
 ```
 
-`npm run build` 现在只做 TypeScript 类型检查，适合作为 Vercel 的构建命令。
+`npm run build` 现在只做 TypeScript 类型检查，同时覆盖 Vercel 和 Workers 入口。
 
 如果你想在本地模拟一次 Vercel 构建，使用下面这个命令：
 
@@ -201,6 +226,36 @@ npm run vercel:build
 ```
 
 如果当前目录还没有关联到 Vercel 项目，CLI 可能会先提示执行 `vercel pull`。
+
+## 部署命令
+
+Vercel：
+
+```bash
+npm run deploy:vercel
+```
+
+Cloudflare Workers：
+
+```bash
+npm run deploy:worker
+```
+
+Cloudflare Workers 生产环境建议用 `wrangler secret put` 写入敏感变量，例如：
+
+```bash
+wrangler secret put AICOIN_WEBHOOK_TOKEN
+wrangler secret put LARK_APP_ID
+wrangler secret put LARK_APP_SECRET
+wrangler secret put LARK_USER_ID_TYPE
+wrangler secret put LARK_URGENT_USER_IDS
+```
+
+## 双部署建议
+
+- 同一个仓库可以同时部署到 Vercel 和 Cloudflare Workers。
+- 生产环境建议只选择一个主入口，对外暴露一个 webhook 地址。
+- 当前去重是平台本地内存态，不建议把同一个 AiCoin webhook 同时双活分发到两个平台，否则去重状态不共享，可能重复提醒。
 
 ## 维护提示
 

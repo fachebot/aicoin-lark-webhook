@@ -1,0 +1,9 @@
+AICOIN_WEBHOOK_TOKEN=replace-with-a-long-random-token
+LARK_APP_ID=cli_xxx
+LARK_APP_SECRET=xxx
+LARK_USER_ID_TYPE=open_id
+LARK_URGENT_USER_IDS=ou_xxx,ou_yyy
+LARK_BASE_URL=https://open.larksuite.com
+REQUEST_TIMEOUT_MS=10000
+LOG_LEVEL=info
+DEDUP_WINDOW_MS=0

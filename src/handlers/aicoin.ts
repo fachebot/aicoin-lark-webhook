@@ -1,4 +1,8 @@
-import { getConfig, type AppConfig } from "../config/env.js";
+import {
+  getConfig,
+  type AppConfig,
+  type AppEnvironment,
+} from "../config/env.js";
 import {
   getDedupeStore,
   type DeliveryDedupeStore,
@@ -21,6 +25,7 @@ import {
 
 interface AicoinHandlerDependencies {
   config?: AppConfig;
+  configEnv?: AppEnvironment;
   now?: () => Date;
   createLarkClient?: (config: AppConfig) => LarkClient;
   dedupeStore?: DeliveryDedupeStore;
@@ -57,7 +62,7 @@ export async function handleAicoinRequest(
   }
 
   try {
-    const config = dependencies.config ?? getConfig();
+    const config = dependencies.config ?? getConfig(dependencies.configEnv);
     validateWebhookToken(request, config);
     validateJsonContentType(request);
 
@@ -186,14 +191,24 @@ function parseJsonBody(body: unknown): unknown {
     throw new HttpError(400, "invalid_json", "Request body is required.");
   }
 
-  if (Buffer.isBuffer(body)) {
-    return parseJsonString(body.toString("utf8"));
-  }
-  if (body instanceof Uint8Array) {
-    return parseJsonString(Buffer.from(body).toString("utf8"));
+  if (isNodeBuffer(body)) {
+    return parseJsonString(decodeTextBody(body));
   }
   if (typeof body === "string") {
     return parseJsonString(body);
+  }
+  if (body instanceof Uint8Array) {
+    return parseJsonString(decodeTextBody(body));
+  }
+  if (body instanceof ArrayBuffer) {
+    return parseJsonString(decodeTextBody(new Uint8Array(body)));
+  }
+  if (ArrayBuffer.isView(body)) {
+    return parseJsonString(
+      decodeTextBody(
+        new Uint8Array(body.buffer, body.byteOffset, body.byteLength),
+      ),
+    );
   }
   if (typeof body === "object") {
     return body;
@@ -217,4 +232,16 @@ function parseJsonString(raw: string): unknown {
       "Request body must be valid JSON.",
     );
   }
+}
+
+function decodeTextBody(bytes: Uint8Array): string {
+  return new TextDecoder().decode(bytes);
+}
+
+function isNodeBuffer(body: unknown): body is Uint8Array {
+  return (
+    typeof Buffer !== "undefined" &&
+    typeof Buffer.isBuffer === "function" &&
+    Buffer.isBuffer(body)
+  );
 }

@@ -1,6 +1,7 @@
 import { HttpError } from "../shared/errors.js";
 
 export type LarkUserIdType = "open_id" | "union_id" | "user_id";
+export type AppEnvironment = Record<string, string | undefined>;
 
 export interface AppConfig {
   aicoinWebhookToken: string;
@@ -15,8 +16,15 @@ export interface AppConfig {
 }
 
 let cachedConfig: AppConfig | undefined;
+const EMPTY_ENV: AppEnvironment = {};
 
-export function getConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
+export function getConfig(
+  env: AppEnvironment = getDefaultEnvironment(),
+): AppConfig {
+  if (!shouldUseCachedConfig(env)) {
+    return loadConfig(env);
+  }
+
   if (!cachedConfig) {
     cachedConfig = loadConfig(env);
   }
@@ -27,7 +35,9 @@ export function resetConfigCache() {
   cachedConfig = undefined;
 }
 
-export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
+export function loadConfig(
+  env: AppEnvironment = getDefaultEnvironment(),
+): AppConfig {
   const larkUserIdType = normalizeUserIdType(
     readRequiredString(env, "LARK_USER_ID_TYPE"),
   );
@@ -56,7 +66,19 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
   };
 }
 
-function readRequiredString(env: NodeJS.ProcessEnv, key: string): string {
+function getDefaultEnvironment(): AppEnvironment {
+  if (typeof process !== "undefined" && process.env) {
+    return process.env as AppEnvironment;
+  }
+
+  return EMPTY_ENV;
+}
+
+function shouldUseCachedConfig(env: AppEnvironment): boolean {
+  return env === getDefaultEnvironment();
+}
+
+function readRequiredString(env: AppEnvironment, key: string): string {
   const value = readOptionalString(env, key);
   if (!value) {
     throw new HttpError(500, "config_error", `${key} is required.`);
@@ -65,7 +87,7 @@ function readRequiredString(env: NodeJS.ProcessEnv, key: string): string {
 }
 
 function readOptionalString(
-  env: NodeJS.ProcessEnv,
+  env: AppEnvironment,
   key: string,
 ): string | undefined {
   const raw = env[key];
@@ -77,7 +99,7 @@ function readOptionalString(
   return trimmed === "" ? undefined : trimmed;
 }
 
-function readStringList(env: NodeJS.ProcessEnv, key: string): string[] {
+function readStringList(env: AppEnvironment, key: string): string[] {
   const value = readOptionalString(env, key);
   if (!value) {
     return [];
@@ -90,7 +112,7 @@ function readStringList(env: NodeJS.ProcessEnv, key: string): string[] {
 }
 
 function readNonNegativeInteger(
-  env: NodeJS.ProcessEnv,
+  env: AppEnvironment,
   key: string,
   fallback: number,
 ): number {

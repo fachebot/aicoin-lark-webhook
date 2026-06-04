@@ -7,9 +7,13 @@
     "node": "22.x"
   },
   "scripts": {
-    "dev": "vercel dev",
+    "dev": "npm run dev:vercel",
+    "dev:vercel": "vercel dev",
+    "dev:worker": "wrangler dev",
     "build": "tsc --noEmit",
     "vercel:build": "vercel build",
+    "deploy:vercel": "vercel --prod",
+    "deploy:worker": "wrangler deploy",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
@@ -18,6 +22,7 @@
     "@vercel/node": "^5.8.11",
     "typescript": "^6.0.3",
     "vercel": "^54.9.0",
-    "vitest": "^4.1.8"
+    "vitest": "^4.1.8",
+    "wrangler": "^4.0.0"
   }
 }

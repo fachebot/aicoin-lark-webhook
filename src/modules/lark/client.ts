@@ -224,17 +224,20 @@ export class LarkClient {
     init: RequestInit,
     query?: Record<string, string>,
   ): Promise<T> {
+    const timeout = createTimeoutSignal(this.timeoutMs);
     let response: Response;
     try {
       response = await this.fetchImpl(this.buildUrl(path, query), {
         ...init,
-        signal: AbortSignal.timeout(this.timeoutMs),
+        signal: timeout.signal,
       });
     } catch (error) {
       throw new LarkAPIError(
         stage,
         error instanceof Error ? error.message : String(error),
       );
+    } finally {
+      timeout.dispose();
     }
 
     const responseText = await response.text();
@@ -258,6 +261,22 @@ export class LarkClient {
         parsedBody,
       );
     }
+
     return parsedBody;
   }
+}
+
+function createTimeoutSignal(timeoutMs: number): {
+  signal: AbortSignal;
+  dispose: () => void;
+} {
+  const controller = new AbortController();
+  const timeoutId = globalThis.setTimeout(() => controller.abort(), timeoutMs);
+
+  return {
+    signal: controller.signal,
+    dispose: () => {
+      globalThis.clearTimeout(timeoutId);
+    },
+  };
 }
