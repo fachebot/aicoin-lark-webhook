@@ -18,7 +18,7 @@ export default async function handler(
     const config = getConfig();
 
     for (const timeframe of ["5m", "15m"]) {
-      const klines = await fetchKlines("BTCUSDT", timeframe, 5);
+      const klines = (await fetchKlines("BTCUSDT", timeframe, 5)).filter(k => k.closeTime < Date.now());
       const fvgs = detectFvgs(klines, timeframe, 60);
 
       for (const fvg of fvgs) {
