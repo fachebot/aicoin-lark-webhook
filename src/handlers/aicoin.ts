@@ -59,8 +59,10 @@ export async function handleAicoinRequest(
     const requestReceivedAt = now();
     const rawBody = typeof request.body === 'string' ? request.body : (() => { try { return JSON.stringify(request.body); } catch { return String(request.body); } })();
     console.log(`[body] ${rawBody}`);
-    const payload = parseJsonBody(request.body);
-    const event = normalizeAicoinPayload(payload, requestReceivedAt);
+    const parsed = parseRequestBody(request.body);
+    const event = typeof parsed === "string"
+      ? createTextAlertEvent(parsed, requestReceivedAt)
+      : normalizeAicoinPayload(parsed, requestReceivedAt);
 
     let duplicateUserIds: string[] = [];
     let dedupeStore = dependencies.dedupeStore;
@@ -163,38 +165,17 @@ function validateWebhookToken(request: HandlerRequest, config: AppConfig) {
   }
 }
 
-function parseJsonBody(body: unknown): unknown {
+function parseRequestBody(body: unknown): unknown {
   if (body === undefined || body === null) {
     throw new HttpError(400, "invalid_json", "Request body is required.");
   }
 
-  if (isNodeBuffer(body)) {
-    return parseJsonString(decodeTextBody(body));
-  }
-  if (typeof body === "string") {
-    return parseJsonString(body);
-  }
-  if (body instanceof Uint8Array) {
-    return parseJsonString(decodeTextBody(body));
-  }
-  if (body instanceof ArrayBuffer) {
-    return parseJsonString(decodeTextBody(new Uint8Array(body)));
-  }
-  if (ArrayBuffer.isView(body)) {
-    return parseJsonString(
-      decodeTextBody(
-        new Uint8Array(body.buffer, body.byteOffset, body.byteLength),
-      ),
-    );
-  }
-  if (typeof body === "object") {
-    return body;
+  const raw = decodeRawBody(body);
+
+  if (typeof raw === "object") {
+    return raw;
   }
 
-  throw new HttpError(400, "invalid_json", "Request body must be valid JSON.");
-}
-
-function parseJsonString(raw: string): unknown {
   const trimmed = raw.trim();
   if (trimmed === "") {
     throw new HttpError(400, "invalid_json", "Request body must not be empty.");
@@ -203,16 +184,51 @@ function parseJsonString(raw: string): unknown {
   try {
     return JSON.parse(trimmed) as unknown;
   } catch {
-    throw new HttpError(
-      400,
-      "invalid_json",
-      "Request body must be valid JSON.",
-    );
+    return trimmed;
   }
+}
+
+function decodeRawBody(body: unknown): string | Record<string, unknown> {
+  if (isNodeBuffer(body)) {
+    return decodeTextBody(body);
+  }
+  if (typeof body === "string") {
+    return body;
+  }
+  if (body instanceof Uint8Array) {
+    return decodeTextBody(body);
+  }
+  if (body instanceof ArrayBuffer) {
+    return decodeTextBody(new Uint8Array(body));
+  }
+  if (ArrayBuffer.isView(body)) {
+    return decodeTextBody(new Uint8Array(body.buffer, body.byteOffset, body.byteLength));
+  }
+  if (typeof body === "object") {
+    return body as Record<string, unknown>;
+  }
+  throw new HttpError(400, "invalid_json", "Request body must be valid JSON.");
 }
 
 function decodeTextBody(bytes: Uint8Array): string {
   return new TextDecoder().decode(bytes);
+}
+
+function createTextAlertEvent(text: string, receivedAt: Date): import("../modules/aicoin/types.js").PriceAlertEvent {
+  return {
+    source: "AiCoin",
+    eventType: "price_alert",
+    exchange: "",
+    symbol: "",
+    triggerTypeRaw: "text",
+    triggerTypeLabel: "",
+    threshold: "",
+    currentPrice: "",
+    remark: text,
+    timestamp: receivedAt.toISOString(),
+    receivedAt: receivedAt.toISOString(),
+    dedupeKey: "text:" + text,
+  };
 }
 
 function buildHealthPayload(now: () => Date) {

@@ -18,12 +18,18 @@ export interface NotifyPriceAlertArgs {
 export async function notifyPriceAlert(
   args: NotifyPriceAlertArgs,
 ): Promise<DeliveryResult[]> {
-  const post = buildPriceAlertPost(args.event);
+  const isTextAlert = args.event.triggerTypeRaw === "text";
   const results: DeliveryResult[] = [];
 
   for (const userId of args.userIds) {
     try {
-      const messageId = await args.client.sendPostMessage(userId, post);
+      let messageId: string;
+      if (isTextAlert) {
+        messageId = await args.client.sendTextMessage(userId, args.event.remark ?? args.event.symbol);
+      } else {
+        const post = buildPriceAlertPost(args.event);
+        messageId = await args.client.sendPostMessage(userId, post);
+      }
       await args.client.sendUrgentApp(messageId, userId);
       results.push({
         userId,
