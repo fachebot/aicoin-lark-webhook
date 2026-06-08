@@ -28,5 +28,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return;
   }
 
+  console.log(`[${req.method}] ${req.url} -> ${result.status}`, JSON.stringify(result.body));
   res.status(result.status).json(result.body);
 }
