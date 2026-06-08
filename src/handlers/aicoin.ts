@@ -16,7 +16,6 @@ import {
 } from "../modules/notify/service.js";
 import { HttpError, isHttpError } from "../shared/errors.js";
 import {
-  emptyResult,
   firstValue,
   jsonResult,
   type HandlerRequest,
@@ -41,16 +40,8 @@ export async function handleAicoinRequest(
   const method = (request.method ?? "GET").toUpperCase();
   const now = dependencies.now ?? (() => new Date());
 
-  if (method === "GET") {
-    return jsonResult(200, {
-      service: "aicoin-lark-webhook",
-      status: "ok",
-      timestamp: now().toISOString(),
-    });
-  }
-
-  if (method === "HEAD") {
-    return emptyResult(200);
+  if (method === "GET" || method === "HEAD") {
+    return jsonResult(200, buildHealthPayload(now));
   }
 
   if (method !== "POST") {
@@ -236,6 +227,14 @@ function parseJsonString(raw: string): unknown {
 
 function decodeTextBody(bytes: Uint8Array): string {
   return new TextDecoder().decode(bytes);
+}
+
+function buildHealthPayload(now: () => Date) {
+  return {
+    service: "aicoin-lark-webhook",
+    status: "ok",
+    timestamp: now().toISOString(),
+  };
 }
 
 function isNodeBuffer(body: unknown): body is Uint8Array {

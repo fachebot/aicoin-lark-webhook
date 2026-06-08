@@ -45,6 +45,23 @@ describe("handleAicoinRequest", () => {
     });
   });
 
+  it("returns the same metadata payload for HEAD", async () => {
+    const result = await handleAicoinRequest(
+      { method: "HEAD" },
+      { now: () => new Date("2026-06-04T00:00:00Z") },
+    );
+
+    expect(result.status).toBe(200);
+    expect(result.headers).toMatchObject({
+      "content-type": "application/json; charset=utf-8",
+    });
+    expect(result.body).toEqual({
+      service: "aicoin-lark-webhook",
+      status: "ok",
+      timestamp: "2026-06-04T00:00:00.000Z",
+    });
+  });
+
   it("returns 401 when the token does not match", async () => {
     const result = await handleAicoinRequest(
       {
