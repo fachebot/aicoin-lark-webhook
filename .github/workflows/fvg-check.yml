@@ -9,6 +9,15 @@ jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger FVG check on Vercel
-        run: |
-          curl -sS --max-time 30 "https://aicoin-lark-webhook.vercel.app/api/cron/fvg-check"
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Run FVG check
+        run: npx tsx api/cron/fvg-check.ts
+        env:
+          AICOIN_WEBHOOK_TOKEN: unused
+          LARK_APP_ID: ${{ secrets.LARK_APP_ID }}
+          LARK_APP_SECRET: ${{ secrets.LARK_APP_SECRET }}
+          LARK_USER_ID_TYPE: ${{ secrets.LARK_USER_ID_TYPE }}
+          LARK_URGENT_USER_IDS: ${{ secrets.LARK_URGENT_USER_IDS }}
