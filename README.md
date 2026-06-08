@@ -1,4 +1,4 @@
-﻿# AiCoin Lark Webhook
+# AiCoin Lark Webhook
 
 一个轻量的 Webhook 服务，接收 **AiCoin** 价格预警并实时推送到飞书用户私聊，附带应用加急提醒。
 
