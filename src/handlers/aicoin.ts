@@ -57,6 +57,8 @@ export async function handleAicoinRequest(
     validateWebhookToken(request, config);
 
     const requestReceivedAt = now();
+    const rawBody = typeof request.body === 'string' ? request.body : (() => { try { return JSON.stringify(request.body); } catch { return String(request.body); } })();
+    console.log(`[body] ${rawBody}`);
     const payload = parseJsonBody(request.body);
     const event = normalizeAicoinPayload(payload, requestReceivedAt);
 
