@@ -55,7 +55,6 @@ export async function handleAicoinRequest(
   try {
     const config = dependencies.config ?? getConfig(dependencies.configEnv);
     validateWebhookToken(request, config);
-    validateJsonContentType(request);
 
     const requestReceivedAt = now();
     const payload = parseJsonBody(request.body);
@@ -159,21 +158,6 @@ function validateWebhookToken(request: HandlerRequest, config: AppConfig) {
   const token = firstValue(request.query?.token);
   if (token !== config.aicoinWebhookToken) {
     throw new HttpError(401, "unauthorized", "Invalid webhook token.");
-  }
-}
-
-function validateJsonContentType(request: HandlerRequest) {
-  const contentType = firstValue(request.headers?.["content-type"]);
-  if (!contentType) {
-    return;
-  }
-
-  if (!contentType.toLowerCase().includes("application/json")) {
-    throw new HttpError(
-      400,
-      "invalid_content_type",
-      "Content-Type must be application/json.",
-    );
   }
 }
 
