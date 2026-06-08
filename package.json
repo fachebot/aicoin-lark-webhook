@@ -17,8 +17,5 @@
     "@vercel/node": "^5.8.11",
     "typescript": "^6.0.3",
     "vitest": "^4.1.8"
-  },
-  "engines": {
-    "node": "20.x"
   }
 }
