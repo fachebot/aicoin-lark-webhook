@@ -1,4 +1,4 @@
-{
+﻿{
   "name": "aicoin-lark-webhook",
   "version": "0.1.0",
   "private": true,
@@ -6,11 +6,9 @@
   "scripts": {
     "dev": "npm run dev:vercel",
     "dev:vercel": "npx --yes vercel@54.9.0 dev",
-    "dev:worker": "wrangler dev",
     "build": "tsc --noEmit",
     "vercel:build": "npx --yes vercel@54.9.0 build",
     "deploy:vercel": "npx --yes vercel@54.9.0 --prod",
-    "deploy:worker": "wrangler deploy",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
@@ -18,7 +16,6 @@
     "@types/node": "^25.9.1",
     "@vercel/node": "^5.8.11",
     "typescript": "^6.0.3",
-    "vitest": "^4.1.8",
-    "wrangler": "^4.0.0"
+    "vitest": "^4.1.8"
   }
 }

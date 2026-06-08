@@ -1,4 +1,4 @@
-{
+﻿{
   "compilerOptions": {
     "target": "ES2022",
     "module": "ESNext",
@@ -22,7 +22,6 @@
   "include": [
     "api/**/*.ts",
     "src/**/*.ts",
-    "workers/**/*.ts",
     "tests/**/*.ts",
     "vitest.config.ts"
   ]
