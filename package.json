@@ -17,5 +17,8 @@
     "@vercel/node": "^5.8.11",
     "typescript": "^6.0.3",
     "vitest": "^4.1.8"
+  },
+  "dependencies": {
+    "redis": "^6.0.0"
   }
 }
